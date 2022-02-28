@@ -1,0 +1,38 @@
+<div class="table-responsive">
+    <table class="text-nowrap table table-condensed table-bordered">
+    <thead>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.support_reference_id') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.merchant_reference') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.status_flag') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.result_code') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.result_description') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.response_code') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.response_description') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.approval_code') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.package_no') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.auth_status') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.transaction_id') %></th>
+    <th><%= Spree.t(:created_at) %></th>
+    <th><%= Spree.t(:updated_at) %></th>
+    </thead>
+    <tbody>
+        <% @payment.eurobank_payments.each do |eurobank_payment| %>
+            <tr>
+                <td><%= eurobank_payment.support_reference_id %></td>
+                <td><%= eurobank_payment.merchant_reference %></td>
+                <td><%= eurobank_payment.status_flag %></td>
+                <td><%= eurobank_payment.result_code %></td>
+                <td><%= eurobank_payment.result_description %></td>
+                <td><%= eurobank_payment.response_code %></td>
+                <td><%= eurobank_payment.response_description %></td>
+                <td><%= eurobank_payment.approval_code %></td>
+                <td><%= eurobank_payment.package_no %></td>
+                <td><%= eurobank_payment.auth_status %></td>
+                <td><%= eurobank_payment.transaction_id %></td>
+                <td><%= eurobank_payment.created_at.strftime('%D-%M-%Y %H:%m') %></td>
+                <td><%= eurobank_payment.updated_at.strftime('%D-%M-%Y %H:%m') %></td>
+            <tr>
+        <% end %>
+    </tbody>
+    </table>
+</div>

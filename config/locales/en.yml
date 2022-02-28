@@ -1,0 +1,18 @@
+# Sample localization file for English. Add more files in this directory for other locales.
+# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+
+el:
+  activerecord:
+    attributes:
+      spree/eurobank_payment:
+        support_reference_id: Reference ID
+        merchant_reference: Merchant Reference
+        status_flag: Status Flag
+        result_code: Result Code
+        result_description: Result Description
+        response_code: Response Code
+        response_description: Response Description
+        approval_code: Approval Code
+        package_no: Package No
+        auth_status: Auth Status
+        transaction_id: Transaction ID
