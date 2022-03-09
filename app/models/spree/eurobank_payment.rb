@@ -1,7 +1,7 @@
 module Spree
     class EurobankPayment < Spree::Base
-        validates :transaction_ticket, presence: true, uniqueness: {case_sensitive: false}
-        validates :support_reference_id, presence: true, uniqueness: {case_sensitive: false}, on: :update
+        validates :digest, presence: true, uniqueness: {case_sensitive: false}
+        validates :uuid, presence: true, uniqueness: {case_sensitive: false}
     
         belongs_to :payment
 
