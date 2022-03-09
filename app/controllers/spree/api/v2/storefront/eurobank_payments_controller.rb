@@ -37,7 +37,7 @@ module Spree
                                 'Cardlink1', # shared secret
                             ].join
 
-                            digest = Base64.encode64(Digest::SHA256.digest string)
+                            digest = Base64.encode64(Digest::SHA256.digest string).strip
                            
                             payment.eurobank_payments.create!(
                                 digest: digest,
