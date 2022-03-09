@@ -3,6 +3,9 @@ module Spree::PaymentMethodDecorator
         base.preference :new_ticket_url, :string, default: 'https://eurocommerce-test.cardlink.gr/vpos/shophandlermpi'
         base.preference :merchant_id, :string
         base.preference :shared_secret, :string
+
+        base.preference :confirm_url, :string
+        base.preference :cancel_url, :string
     end
 
     protected

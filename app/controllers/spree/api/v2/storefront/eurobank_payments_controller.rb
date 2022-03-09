@@ -31,8 +31,8 @@ module Spree
                                 'Ηλεκτρονική Παραγγελία', # orderDesc
                                 payment.amount, # orderAmount
                                 'EUR', # currency
-                                URI.join('', '/checkout/success'), # confirmUrl
-                                URI.join('', '/checkout/failure'), # cancelUrl
+                                preferences[:confirm_url], # confirmUrl
+                                preferences[:cancel_url], # cancelUrl
                                 uuid, # var1
                                 'Cardlink1', # shared secret
                             ].join
