@@ -18,61 +18,33 @@ module Spree
                                 raise 'Order has not EurobankPayment'
                             end
                             
-                            url = 'https://paycenter.piraeusbank.gr/services/tickets/issuer.asmx'
-
                             preferences = payment.payment_method.preferences
                             raise 'There is no preferences on payment methods' unless preferences
 
-                            password = Digest::MD5.hexdigest(preferences[:password])
-
                             uuid = SecureRandom.uuid
 
-                            message = %Q[<?xml version="1.0" encoding="utf-8"?>
-                                <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-                                <soap12:Body>
-                                    <IssueNewTicket xmlns="http://piraeusbank.gr/paycenter/redirection">
-                                    <Request>
-                                        <Username>#{preferences[:user_name]}</Username>
-                                        <Password>#{password}</Password>
-                                        <MerchantId>#{preferences[:merchant_id]}</MerchantId>
-                                        <PosId>#{preferences[:pos_id]}</PosId>
-                                        <AcquirerId>#{preferences[:acquirer_id]}</AcquirerId>
-                                        <MerchantReference>#{payment.number}</MerchantReference>
-                                        <RequestType>02</RequestType>
-                                        <ExpirePreauth>0</ExpirePreauth>
-                                        <Amount>#{payment.amount}</Amount>
-                                        <CurrencyCode>978</CurrencyCode>
-                                        <Installments>0</Installments>
-                                        <Bnpl>0</Bnpl>
-                                        <Parameters>#{uuid}</Parameters>
-                                    </Request>
-                                    </IssueNewTicket>
-                                </soap12:Body>
-                                </soap12:Envelope>]
+                            string = [
+                                2, # version
+                                preferences[:merchant_id], # mid
+                                'el', # lang
+                                payment.order.number, # orderid
+                                'Ηλεκτρονική Παραγγελία', # orderDesc
+                                payment.amount, # orderAmount
+                                'EUR', # currency
+                                URI.join('', '/checkout/success'), # confirmUrl
+                                URI.join('', '/checkout/failure'), # cancelUrl
+                                uuid, # var1
+                                'Cardlink1', # shared secret
+                            ].join
 
-                            response = Net::HTTP.post(
-                                URI(url),
-                                message.strip,
-                                'Content-Type' => 'application/soap+xml; charset=UTF-8'
+                            digest = Base64.encode64(Digest::SHA256.digest string)
+                           
+                            payment.eurobank_payments.create!(
+                                digest: digest,
+                                uuid: uuid
                             )
-
-                            body = response.body
-
-                            result_code = body.match(/<ResultCode>(\d)<\/ResultCode>/)
-                            result_description = body.match(/<ResultDescription>(.*)<\/ResultDescription>/)
-                            result_tran_ticket = body.match(/<TranTicket>(\S+)<\/TranTicket>/)
-                            result_timestamp = body.match(/<Timestamp>(\S+)<\/Timestamp>/)
                             
-                            if result_code && result_code[1].to_i == 0
-                                payment.eurobank_payments.create!(
-                                    transaction_ticket: result_tran_ticket[1],
-                                    uuid: uuid
-                                )
-                                
-                                render json: {code: result_code[1].to_i}
-                            else
-                                render_error_payload(result_description[1])
-                            end
+                            render json: {digest: digest, uuid: uuid}
                         rescue => exception
                             render_error_payload(exception.to_s)
                         end
@@ -136,16 +108,8 @@ module Spree
                     end
 
                     private
-                    def eurobank_payment_params(state)
-                        if state == 'success'
-                            params.require(:eurobank_payment)
-                                .permit(:support_reference_id , :merchant_reference, :status_flag, :response_code, 
-                                    :response_description, :approval_code, :package_no, :auth_status, :transaction_id)
-                        else
-                            params.require(:eurobank_payment)
-                                .permit(:support_reference_id , :merchant_reference, 
-                                    :result_code, :result_description, :response_code, :response_description)
-                        end
+                    def eurobank_payment_params
+                        params.require(:eurobank_payment).permit!
                     end
                 end
             end
