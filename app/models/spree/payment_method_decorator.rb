@@ -10,7 +10,7 @@ module Spree::PaymentMethodDecorator
 
     protected
     def public_preference_keys
-        [:new_ticket_url, :merchant_id, :shared_secret]
+        [:new_ticket_url, :merchant_id, :confirm_url, :cancel_url]
     end
 end
   

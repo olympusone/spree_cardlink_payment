@@ -23,22 +23,29 @@ module Spree
 
                             uuid = SecureRandom.uuid
 
+                            bill_address = payment.order.bill_address
+
+                            puts request.host
+
                             string = [
                                 2, # version
                                 preferences[:merchant_id], # mid
                                 'el', # lang
-                                payment.order.number, # orderid
+                                uuid, # orderid
                                 'Ηλεκτρονική Παραγγελία', # orderDesc
                                 payment.amount, # orderAmount
                                 'EUR', # currency
+                                bill_address.country.iso, # billCountry
+                                bill_address.zipcode, # billZip
+                                bill_address.city, # billCity
+                                bill_address.address1, # billAddress
                                 preferences[:confirm_url], # confirmUrl
                                 preferences[:cancel_url], # cancelUrl
-                                uuid, # var1
-                                'Cardlink1', # shared secret
-                            ].join
+                                preferences[:shared_secret], # shared secret
+                            ].join.strip
 
                             digest = Base64.encode64(Digest::SHA256.digest string).strip
-                           
+
                             payment.eurobank_payments.create!(
                                 digest: digest,
                                 uuid: uuid
@@ -53,12 +60,12 @@ module Spree
                     def failure
                         fields = params.require(:eurobank_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:parameters])
+                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:orderid])
                         
-                        eurobank_payment.payment.update(response_code: fields[:support_reference_id])
+                        eurobank_payment.payment.update(response_code: fields[:tx_id])
                         eurobank_payment.payment.failure
 
-                        if eurobank_payment.update(eurobank_payment_params('failure'))
+                        if eurobank_payment.update(eurobank_payment_params)
                             render json: {ok: true}
                         else
                             render json: {ok: false, errors: eurobank_payment.errors.full_messages}, status: 400
@@ -68,37 +75,19 @@ module Spree
                     def success
                         fields = params.require(:eurobank_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:parameters])
-                        payment = eurobank_payment.payment
-                        preferences = payment.payment_method.preferences
+                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:orderid])
 
-                        hash_key = [
-                            eurobank_payment.transaction_ticket,
-                            preferences[:pos_id],
-                            preferences[:acquirer_id],
-                            payment.number,
-                            fields[:approval_code],
-                            fields[:parameters],
-                            fields[:response_code],
-                            fields[:support_reference_id],
-                            fields[:auth_status],
-                            fields[:package_no],
-                            fields[:status_flag],
-                        ].join(';')
+                        if eurobank_payment.update(eurobank_payment_params)
+                            payment.update(response_code: fields[:tx_id])
 
-                        secure_hash = OpenSSL::HMAC.hexdigest('SHA256', eurobank_payment.transaction_ticket, hash_key)
-
-                        if eurobank_payment.update(eurobank_payment_params('success'))
-                            payment.update(response_code: fields[:support_reference_id])
-
-                            if secure_hash.upcase === fields[:hash_key]
+                            if eurobank_payment.digest === fields[:digest]
                                 payment.complete
 
                                 render json: {ok: true}
                             else
                                 payment.void
     
-                                render json: {ok: false, error: "Hash Key is not correct"}, status: 400
+                                render json: {ok: false, error: "Digest is not correct"}, status: 400
                             end
                         else
                             payment.failure
@@ -109,7 +98,7 @@ module Spree
 
                     private
                     def eurobank_payment_params
-                        params.require(:eurobank_payment).permit!
+                        params.require(:eurobank_payment).permit(:status, :message, :tx_id, :payment_ref)
                     end
                 end
             end
