@@ -31,7 +31,7 @@ module Spree
                                 2, # version
                                 preferences[:merchant_id], # mid
                                 'el', # lang
-                                uuid, # orderid
+                                payment.number, # orderid
                                 'Ηλεκτρονική Παραγγελία', # orderDesc
                                 payment.amount, # orderAmount
                                 'EUR', # currency
@@ -41,6 +41,7 @@ module Spree
                                 bill_address.address1, # billAddress
                                 preferences[:confirm_url], # confirmUrl
                                 preferences[:cancel_url], # cancelUrl
+                                uuid,
                                 preferences[:shared_secret], # shared secret
                             ].join.strip
 
@@ -60,7 +61,7 @@ module Spree
                     def failure
                         fields = params.require(:eurobank_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:orderid])
+                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:uuid])
                         
                         eurobank_payment.payment.update(response_code: fields[:tx_id])
                         eurobank_payment.payment.failure
@@ -75,7 +76,7 @@ module Spree
                     def success
                         fields = params.require(:eurobank_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:orderid])
+                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:uuid])
 
                         if eurobank_payment.update(eurobank_payment_params)
                             payment.update(response_code: fields[:tx_id])
