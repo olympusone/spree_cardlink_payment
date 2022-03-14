@@ -71,6 +71,7 @@ module Spree
                         fields = params.require(:eurobank_payment).permit!
 
                         eurobank_payment = Spree::EurobankPayment.find_by(token: fields[:token])
+                        payment = eurobank_payment.payment
 
                         if eurobank_payment.update(eurobank_payment_params)
                             payment.update(response_code: fields[:tx_id])
