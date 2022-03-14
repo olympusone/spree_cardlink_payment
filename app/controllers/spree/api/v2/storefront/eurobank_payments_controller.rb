@@ -21,17 +21,15 @@ module Spree
                             preferences = payment.payment_method.preferences
                             raise 'There is no preferences on payment methods' unless preferences
 
-                            uuid = SecureRandom.uuid
-
                             bill_address = payment.order.bill_address
 
-                            puts request.host
+                            token = SecureRandom.base58(24)
 
                             string = [
                                 2, # version
                                 preferences[:merchant_id], # mid
                                 'el', # lang
-                                payment.number, # orderid
+                                token, # orderid
                                 'Ηλεκτρονική Παραγγελία', # orderDesc
                                 payment.amount, # orderAmount
                                 'EUR', # currency
@@ -41,18 +39,14 @@ module Spree
                                 bill_address.address1, # billAddress
                                 preferences[:confirm_url], # confirmUrl
                                 preferences[:cancel_url], # cancelUrl
-                                uuid,
                                 preferences[:shared_secret], # shared secret
                             ].join.strip
 
                             digest = Base64.encode64(Digest::SHA256.digest string).strip
 
-                            payment.eurobank_payments.create!(
-                                digest: digest,
-                                uuid: uuid
-                            )
+                            eurobank_payment = payment.eurobank_payments.create!(digest: digest, token: token)
                             
-                            render json: {digest: digest, uuid: uuid}
+                            render json: {digest: digest, token: token}
                         rescue => exception
                             render_error_payload(exception.to_s)
                         end
@@ -61,7 +55,7 @@ module Spree
                     def failure
                         fields = params.require(:eurobank_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:uuid])
+                        eurobank_payment = Spree::EurobankPayment.find_by(token: fields[:token])
                         
                         eurobank_payment.payment.update(response_code: fields[:tx_id])
                         eurobank_payment.payment.failure
@@ -76,7 +70,7 @@ module Spree
                     def success
                         fields = params.require(:eurobank_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(uuid: fields[:uuid])
+                        eurobank_payment = Spree::EurobankPayment.find_by(token: fields[:token])
 
                         if eurobank_payment.update(eurobank_payment_params)
                             payment.update(response_code: fields[:tx_id])
