@@ -6,7 +6,7 @@ class CreateEurobankPaymentsTable < ActiveRecord::Migration[6.1]
       t.string :digest, index: {unique: true}, null: false
       t.string :token, index: {unique: true}, null: false
       t.string :message
-      t.integer :tx_id
+      t.bigint :tx_id
       t.string :payment_ref
       t.string :status
 
