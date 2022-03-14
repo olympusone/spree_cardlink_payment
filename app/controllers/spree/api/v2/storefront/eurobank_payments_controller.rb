@@ -28,7 +28,7 @@ module Spree
                             string = [
                                 2, # version
                                 preferences[:merchant_id], # mid
-                                'el', # lang
+                                params[:lang], # lang
                                 token, # orderid
                                 'Ηλεκτρονική Παραγγελία', # orderDesc
                                 payment.amount, # orderAmount
