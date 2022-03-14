@@ -3,6 +3,7 @@
     <thead>
     <th><%= t('activerecord.attributes.spree/eurobank_payment.tx_id') %></th>
     <th><%= t('activerecord.attributes.spree/eurobank_payment.payment_ref') %></th>
+    <th><%= t('activerecord.attributes.spree/eurobank_payment.status') %></th>
     <th><%= t('activerecord.attributes.spree/eurobank_payment.message') %></th>
     <th><%= Spree.t(:created_at) %></th>
     <th><%= Spree.t(:updated_at) %></th>
@@ -13,8 +14,9 @@
                 <td><%= eurobank_payment.tx_id %></td>
                 <td><%= eurobank_payment.payment_ref %></td>
                 <td><%= eurobank_payment.message %></td>
-                <td><%= eurobank_payment.created_at.strftime('%D-%M-%Y %H:%m') %></td>
-                <td><%= eurobank_payment.updated_at.strftime('%D-%M-%Y %H:%m') %></td>
+                <td><%= eurobank_payment.status %></td>
+                <td><%= eurobank_payment.created_at.strftime('%d-%m-%Y %H:%M') %></td>
+                <td><%= eurobank_payment.updated_at.strftime('%d-%m-%Y %H:%M') %></td>
             <tr>
         <% end %>
     </tbody>
