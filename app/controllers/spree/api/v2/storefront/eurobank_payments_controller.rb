@@ -76,6 +76,8 @@ module Spree
                         if eurobank_payment.update(eurobank_payment_params)
                             payment.update(response_code: fields[:tx_id])
 
+                            puts 'error', eurobank_payment.digest, fields[:digest]
+
                             if eurobank_payment.digest === fields[:digest]
                                 payment.complete
 
