@@ -76,9 +76,32 @@ module Spree
                         if eurobank_payment.update(eurobank_payment_params)
                             payment.update(response_code: fields[:tx_id])
 
-                            puts 'error', eurobank_payment.digest, fields[:digest]
+                            preferences = payment.payment_method.preferences
+                            raise 'There is no preferences on payment methods' unless preferences
 
-                            if eurobank_payment.digest === fields[:digest]
+                            bill_address = payment.order.bill_address
+
+                            string = [
+                                2, # version
+                                preferences[:merchant_id], # mid
+                                token, # orderid
+                                fields[:status],
+                                payment.amount, # orderAmount
+                                'EUR', # currency
+                                fields[:paymentTotal],
+                                fields[:message],
+                                fields[:riskScore],
+                                fields[:payMethod],
+                                fields[:tx_id],
+                                fields[:payment_ref],
+                                preferences[:shared_secret], # shared secret
+                            ].join.strip
+
+                            digest = Base64.encode64(Digest::SHA256.digest string).strip
+
+                            puts 'error', digest, fields[:digest]
+
+                            if digest === fields[:digest]
                                 payment.complete
 
                                 render json: {ok: true}
@@ -96,7 +119,7 @@ module Spree
 
                     private
                     def eurobank_payment_params
-                        params.require(:eurobank_payment).permit(:status, :message, :tx_id, :payment_ref)
+                        params.require(:eurobank_payment).permit(:status, :message, :tx_id, :payment_ref, :digest)
                     end
                 end
             end
