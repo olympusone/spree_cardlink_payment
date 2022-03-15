@@ -99,8 +99,6 @@ module Spree
 
                             digest = Base64.encode64(Digest::SHA256.digest string).strip
 
-                            puts 'error', digest, fields[:digest]
-
                             if digest === fields[:digest]
                                 payment.complete
 
