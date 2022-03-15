@@ -84,7 +84,7 @@ module Spree
                             string = [
                                 2, # version
                                 preferences[:merchant_id], # mid
-                                token, # orderid
+                                fields[:token], # orderid
                                 fields[:status],
                                 payment.amount, # orderAmount
                                 'EUR', # currency
