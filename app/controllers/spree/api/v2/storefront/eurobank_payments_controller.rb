@@ -101,6 +101,7 @@ module Spree
 
                             if digest === fields[:digest]
                                 payment.complete
+                                complete_service.call(order: payment.order)
 
                                 render json: {ok: true}
                             else
@@ -118,6 +119,10 @@ module Spree
                     private
                     def eurobank_payment_params
                         params.require(:eurobank_payment).permit(:status, :message, :tx_id, :payment_ref, :digest)
+                    end
+
+                    def complete_service
+                        Spree::Api::Dependencies.storefront_checkout_complete_service.constantize
                     end
                 end
             end
