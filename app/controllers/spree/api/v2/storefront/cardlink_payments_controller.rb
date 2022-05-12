@@ -89,7 +89,7 @@ module Spree
 
                             digest_result = Base64.encode64(Digest::SHA256.digest string).strip
 
-                            raise "Wrong data is given!" digest_result == params[:digest]
+                            raise "Wrong data is given!" unless digest_result == params[:digest]
                             
                             cardlink_payment.payment.update(response_code: fields[:tx_id])
                             cardlink_payment.payment.failure
