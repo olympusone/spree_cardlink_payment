@@ -63,7 +63,6 @@ module Spree
 
                     def failure
                         begin
-                            puts "sss", params
                             cardlink_payment = Spree::CardlinkPayment.find_by(orderid: params[:orderid], tx_id: nil)                            
                             raise 'Payment not found' unless cardlink_payment
 
@@ -92,7 +91,7 @@ module Spree
 
                             raise "Wrong data is given!" unless digest_result == params[:digest]
                             
-                            cardlink_payment.payment.update(response_code: fields[:tx_id])
+                            cardlink_payment.payment.update(response_code: params[:tx_id])
                             cardlink_payment.payment.failure
 
                             cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
