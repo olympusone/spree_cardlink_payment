@@ -143,7 +143,7 @@ module Spree
                                 payment_ref: params[:paymentRef]
                             )
 
-                            payment.update(response_code: fields[:tx_id])
+                            payment.update(response_code: params[:tx_id])
 
                             if ['AUTHORIZED', 'CAPTURED'].include?(params[:status])
                                 payment.complete
