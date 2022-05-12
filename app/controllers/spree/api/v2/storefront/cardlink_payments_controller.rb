@@ -95,6 +95,13 @@ module Spree
                             cardlink_payment.payment.failure
 
                             cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
+
+                            puts "dsadsa", URI::join(
+                                preferences[:cancel_url], 
+                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}").to_s
+                            puts "sss", URI::join(
+                                preferences[:cancel_url], 
+                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}")
                             
                             redirect_to URI::join(
                                 preferences[:cancel_url], 

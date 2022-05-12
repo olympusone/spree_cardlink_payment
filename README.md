@@ -1,6 +1,6 @@
 # SpreeCardlinkPayment
 
-You can accept WinBank Piraeus Bank through ePOS payments
+You can accept payments through ePOS payments
 
 ## Installation
 
