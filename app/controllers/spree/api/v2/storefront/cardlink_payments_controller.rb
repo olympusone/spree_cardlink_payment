@@ -62,17 +62,42 @@ module Spree
                     end
 
                     def failure
-                        fields = params.require(:cardlink_payment).permit!
+                        begin
+                            cardlink_payment = Spree::CardlinkPayment.find_by(orderid: params[:orderid], tx_id: nil)                            
+                            raise 'Payment not found' unless cardlink_payment
 
-                        cardlink_payment = Spree::CardlinkPayment.find_by(token: fields[:token])
-                        
-                        cardlink_payment.payment.update(response_code: fields[:tx_id])
-                        cardlink_payment.payment.failure
+                            payment = cardlink_payment.payment
 
-                        if cardlink_payment.update(cardlink_payment_params)
-                            render json: {ok: true}
-                        else
-                            render json: {ok: false, errors: cardlink_payment.errors.full_messages}, status: 400
+                            preferences = payment.payment_method.preferences
+                            raise 'There is no preferences on payment methods' unless preferences
+
+                            raise 'Payment not found' unless params[:mid] == preferences[:merchant_id]
+
+                            string = [
+                                params[:version],
+                                preferences[:merchant_id],
+                                params[:orderid],
+                                params[:status],
+                                params[:orderAmount],
+                                params[:currency],
+                                params[:paymentTotal],
+                                params[:riskScore],
+                                params[:txId],
+                                preferences[:shared_secret]
+                            ].join.strip
+
+                            digest_result = Base64.encode64(Digest::SHA256.digest string).strip
+
+                            raise "Wrong data is given!" digest_result == params[:digest]
+                            
+                            cardlink_payment.payment.update(response_code: fields[:tx_id])
+                            cardlink_payment.payment.failure
+
+                            cardlink_payment.update(tx_id: params[:txId], status: params[:status])
+                            
+                            redirect_to URI::join(preferences[:cancel_url], "?txId=#{params[:txId]}&status=#{params[:status]}")
+                        rescue => exception
+                            render_error_payload(exception.to_s)
                         end
                     end
 
