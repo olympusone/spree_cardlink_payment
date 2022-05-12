@@ -1,22 +1,22 @@
 <div class="table-responsive">
     <table class="text-nowrap table table-condensed table-bordered">
     <thead>
-    <th><%= t('activerecord.attributes.spree/eurobank_payment.tx_id') %></th>
-    <th><%= t('activerecord.attributes.spree/eurobank_payment.payment_ref') %></th>
-    <th><%= t('activerecord.attributes.spree/eurobank_payment.status') %></th>
-    <th><%= t('activerecord.attributes.spree/eurobank_payment.message') %></th>
+    <th><%= t('activerecord.attributes.spree/cardlink_payment.tx_id') %></th>
+    <th><%= t('activerecord.attributes.spree/cardlink_payment.payment_ref') %></th>
+    <th><%= t('activerecord.attributes.spree/cardlink_payment.status') %></th>
+    <th><%= t('activerecord.attributes.spree/cardlink_payment.message') %></th>
     <th><%= Spree.t(:created_at) %></th>
     <th><%= Spree.t(:updated_at) %></th>
     </thead>
     <tbody>
-        <% @payment.eurobank_payments.each do |eurobank_payment| %>
+        <% @payment.cardlink_payments.each do |cardlink_payment| %>
             <tr>
-                <td><%= eurobank_payment.tx_id %></td>
-                <td><%= eurobank_payment.payment_ref %></td>
-                <td><%= eurobank_payment.status %></td>
-                <td><%= eurobank_payment.message %></td>
-                <td><%= eurobank_payment.created_at.strftime('%d-%m-%Y %H:%M') %></td>
-                <td><%= eurobank_payment.updated_at.strftime('%d-%m-%Y %H:%M') %></td>
+                <td><%= cardlink_payment.tx_id %></td>
+                <td><%= cardlink_payment.payment_ref %></td>
+                <td><%= cardlink_payment.status %></td>
+                <td><%= cardlink_payment.message %></td>
+                <td><%= cardlink_payment.created_at.strftime('%d-%m-%Y %H:%M') %></td>
+                <td><%= cardlink_payment.updated_at.strftime('%d-%m-%Y %H:%M') %></td>
             <tr>
         <% end %>
     </tbody>

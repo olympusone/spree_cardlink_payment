@@ -1,10 +1,7 @@
-# Sample localization file for English. Add more files in this directory for other locales.
-# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
-
-el:
+en:
   activerecord:
     attributes:
-      spree/eurobank_payment:
+      spree/cardlink_payment:
         tx_id: Transaction ID
         payment_ref: Payment Reference
         message: Message

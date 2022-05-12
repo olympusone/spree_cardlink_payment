@@ -1,0 +1,7 @@
+el:
+  activerecord:
+    attributes:
+      spree/cardlink_payment:
+        tx_id: Αρ. Συναλλαγής
+        payment_ref: Αναφορά Πληρωμής
+        message: Μήνυμα
