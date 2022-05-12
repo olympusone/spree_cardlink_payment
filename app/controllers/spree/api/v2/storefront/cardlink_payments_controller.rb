@@ -63,6 +63,7 @@ module Spree
 
                     def failure
                         begin
+                            puts "sss", params
                             cardlink_payment = Spree::CardlinkPayment.find_by(orderid: params[:orderid], tx_id: nil)                            
                             raise 'Payment not found' unless cardlink_payment
 
