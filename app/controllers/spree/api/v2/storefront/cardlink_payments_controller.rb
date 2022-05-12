@@ -96,13 +96,6 @@ module Spree
 
                             cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
 
-                            puts "dsadsa", URI::join(
-                                preferences[:cancel_url], 
-                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}").to_s
-                            puts "sss", URI::join(
-                                preferences[:cancel_url], 
-                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}")
-                            
                             redirect_to URI::join(
                                 preferences[:cancel_url], 
                                 "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}").to_s
@@ -112,59 +105,66 @@ module Spree
                     end
 
                     def success
-                        fields = params.require(:cardlink_payment).permit!
+                        begin
+                            cardlink_payment = Spree::CardlinkPayment.find_by(orderid: params[:orderid], tx_id: nil)                            
+                            raise 'Payment not found' unless cardlink_payment
 
-                        cardlink_payment = Spree::CardlinkPayment.find_by(token: fields[:token])
-                        payment = cardlink_payment.payment
-
-                        if cardlink_payment.update(cardlink_payment_params)
-                            payment.update(response_code: fields[:tx_id])
+                            payment = cardlink_payment.payment
 
                             preferences = payment.payment_method.preferences
                             raise 'There is no preferences on payment methods' unless preferences
 
-                            bill_address = payment.order.bill_address
+                            raise 'Payment not found' unless params[:mid] == preferences[:merchant_id]
 
                             string = [
-                                2, # version
-                                preferences[:merchant_id], # mid
-                                fields[:token], # orderid
-                                fields[:status],
-                                payment.amount, # orderAmount
-                                'EUR', # currency
-                                fields[:paymentTotal],
-                                fields[:message],
-                                fields[:riskScore],
-                                fields[:payMethod],
-                                fields[:tx_id],
-                                fields[:payment_ref],
-                                preferences[:shared_secret], # shared secret
+                                params[:version],
+                                preferences[:merchant_id],
+                                params[:orderid],
+                                params[:status],
+                                params[:orderAmount],
+                                params[:currency],
+                                params[:paymentTotal],
+                                params[:message],
+                                params[:riskScore],
+                                params[:payMethod],
+                                params[:txId],
+                                params[:paymentRef],
+                                preferences[:shared_secret]
                             ].join.strip
 
-                            digest = Base64.encode64(Digest::SHA256.digest string).strip
+                            digest_result = Base64.encode64(Digest::SHA256.digest string).strip
 
-                            if digest === fields[:digest]
+                            raise "Wrong data is given!" unless digest_result == params[:digest]
+
+                            cardlink_payment.update(
+                                status: params[:status],
+                                message: params[:message],
+                                tx_id: params[:txId],
+                                payment_ref: params[:paymentRef]
+                            )
+
+                            payment.update(response_code: fields[:tx_id])
+
+                            if ['AUTHORIZED', 'CAPTURED'].include?(params[:status])
                                 payment.complete
                                 complete_service.call(order: payment.order)
 
-                                render json: {ok: true}
+                                redirect_url = preferences[:confirm_url]
                             else
-                                payment.void
-    
-                                render json: {ok: false, error: "Digest is not correct"}, status: 400
+                                payment.failure
+
+                                redirect_url = preferences[:cancel_url]
                             end
-                        else
-                            payment.failure
-                            
-                            render json: {ok: false, errors: cardlink_payment.errors.full_messages}, status: 400
+
+                            redirect_to URI::join(
+                                redirect_url, 
+                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}").to_s
+                        rescue => exception
+                            render_error_payload(exception.to_s)
                         end
                     end
 
                     private
-                    def cardlink_payment_params
-                        params.require(:cardlink_payment).permit(:status, :message, :tx_id, :payment_ref, :digest)
-                    end
-
                     def complete_service
                         Spree::Api::Dependencies.storefront_checkout_complete_service.constantize
                     end
