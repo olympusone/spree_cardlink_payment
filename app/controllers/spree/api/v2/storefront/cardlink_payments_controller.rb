@@ -82,6 +82,7 @@ module Spree
                                 params[:orderAmount],
                                 params[:currency],
                                 params[:paymentTotal],
+                                params[:message],
                                 params[:riskScore],
                                 params[:txId],
                                 preferences[:shared_secret]
@@ -94,9 +95,11 @@ module Spree
                             cardlink_payment.payment.update(response_code: fields[:tx_id])
                             cardlink_payment.payment.failure
 
-                            cardlink_payment.update(tx_id: params[:txId], status: params[:status])
+                            cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
                             
-                            redirect_to URI::join(preferences[:cancel_url], "?txId=#{params[:txId]}&status=#{params[:status]}")
+                            redirect_to URI::join(
+                                preferences[:cancel_url], 
+                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}")
                         rescue => exception
                             render_error_payload(exception.to_s)
                         end
