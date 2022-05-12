@@ -55,7 +55,7 @@ module Spree
                                 orderid: orderid
                             )
                             
-                            render json: {digest: digest, orderid: orderid}
+                            render json: {digest: digest, orderid: orderid, confirm_url: confirm_url, cancel_url :cancel_url}
                         rescue => exception
                             render_error_payload(exception.to_s)
                         end
