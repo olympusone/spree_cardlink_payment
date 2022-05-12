@@ -98,7 +98,7 @@ module Spree
                             
                             redirect_to URI::join(
                                 preferences[:cancel_url], 
-                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}")
+                                "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}").to_s
                         rescue => exception
                             render_error_payload(exception.to_s)
                         end
