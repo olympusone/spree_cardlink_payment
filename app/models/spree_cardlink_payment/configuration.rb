@@ -1,4 +1,4 @@
-module SpreeEurobankPayment
+module SpreeCardlinkPayment
   class Configuration < Spree::Preferences::Configuration
 
    # Some example preferences are shown below, for more information visit:

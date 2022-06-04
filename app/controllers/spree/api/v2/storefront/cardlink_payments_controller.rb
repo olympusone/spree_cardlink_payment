@@ -2,7 +2,7 @@ module Spree
     module Api
         module V2
             module Storefront
-                class EurobankPaymentsController < ::Spree::Api::V2::BaseController
+                class CardlinkPaymentsController < ::Spree::Api::V2::BaseController
                     include Spree::Api::V2::Storefront::OrderConcern
                     before_action :ensure_order, only: :create
                     
@@ -14,8 +14,8 @@ module Spree
                         begin
                             raise 'There is no active payment method' unless payment
 
-                            unless payment.payment_method.type === "Spree::PaymentMethod::EurobankPayment"
-                                raise 'Order has not EurobankPayment'
+                            unless payment.payment_method.type === "Spree::PaymentMethod::CardlinkPayment"
+                                raise 'Order has not CardlinkPayment'
                             end
                             
                             preferences = payment.payment_method.preferences
@@ -44,7 +44,7 @@ module Spree
 
                             digest = Base64.encode64(Digest::SHA256.digest string).strip
 
-                            eurobank_payment = payment.eurobank_payments.create!(digest: digest, token: token)
+                            cardlink_payment = payment.cardlink_payments.create!(digest: digest, token: token)
                             
                             render json: {digest: digest, token: token}
                         rescue => exception
@@ -53,27 +53,27 @@ module Spree
                     end
 
                     def failure
-                        fields = params.require(:eurobank_payment).permit!
+                        fields = params.require(:cardlink_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(token: fields[:token])
+                        cardlink_payment = Spree::CardlinkPayment.find_by(token: fields[:token])
                         
-                        eurobank_payment.payment.update(response_code: fields[:tx_id])
-                        eurobank_payment.payment.failure
+                        cardlink_payment.payment.update(response_code: fields[:tx_id])
+                        cardlink_payment.payment.failure
 
-                        if eurobank_payment.update(eurobank_payment_params)
+                        if cardlink_payment.update(cardlink_payment_params)
                             render json: {ok: true}
                         else
-                            render json: {ok: false, errors: eurobank_payment.errors.full_messages}, status: 400
+                            render json: {ok: false, errors: cardlink_payment.errors.full_messages}, status: 400
                         end
                     end
 
                     def success
-                        fields = params.require(:eurobank_payment).permit!
+                        fields = params.require(:cardlink_payment).permit!
 
-                        eurobank_payment = Spree::EurobankPayment.find_by(token: fields[:token])
-                        payment = eurobank_payment.payment
+                        cardlink_payment = Spree::CardlinkPayment.find_by(token: fields[:token])
+                        payment = cardlink_payment.payment
 
-                        if eurobank_payment.update(eurobank_payment_params)
+                        if cardlink_payment.update(cardlink_payment_params)
                             payment.update(response_code: fields[:tx_id])
 
                             preferences = payment.payment_method.preferences
@@ -112,13 +112,13 @@ module Spree
                         else
                             payment.failure
                             
-                            render json: {ok: false, errors: eurobank_payment.errors.full_messages}, status: 400
+                            render json: {ok: false, errors: cardlink_payment.errors.full_messages}, status: 400
                         end
                     end
 
                     private
-                    def eurobank_payment_params
-                        params.require(:eurobank_payment).permit(:status, :message, :tx_id, :payment_ref, :digest)
+                    def cardlink_payment_params
+                        params.require(:cardlink_payment).permit(:status, :message, :tx_id, :payment_ref, :digest)
                     end
 
                     def complete_service

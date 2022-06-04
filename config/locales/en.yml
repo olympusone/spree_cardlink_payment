@@ -4,7 +4,7 @@
 el:
   activerecord:
     attributes:
-      spree/eurobank_payment:
+      spree/cardlink_payment:
         tx_id: Transaction ID
         payment_ref: Payment Reference
         message: Message
