@@ -1,4 +1,4 @@
-# SpreeEurobankPayment
+# SpreeCardlinkPayment
 
 You can accept WinBank Piraeus Bank through ePOS payments
 
@@ -7,7 +7,7 @@ You can accept WinBank Piraeus Bank through ePOS payments
 1. Add this extension to your Gemfile with this line:
 
     ```ruby
-    gem 'spree_eurobank_payment'
+    gem 'spree_cardlink_payment'
     ```
 
 2. Install the gem using Bundler
@@ -19,7 +19,7 @@ You can accept WinBank Piraeus Bank through ePOS payments
 3. Copy & run migrations
 
     ```ruby
-    bundle exec rails g spree_eurobank_payment:install
+    bundle exec rails g spree_cardlink_payment:install
     ```
 
 4. Restart your server
@@ -39,7 +39,7 @@ When testing your applications integration with this extension you may use it's 
 Simply add this require statement to your spec_helper:
 
 ```ruby
-require 'spree_eurobank_payment/factories'
+require 'spree_cardlink_payment/factories'
 ```
 
 ## Releasing
