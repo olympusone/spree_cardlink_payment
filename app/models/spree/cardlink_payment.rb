@@ -1,7 +1,5 @@
 module Spree
     class CardlinkPayment < Spree::Base
-        # has_secure_token
-
         validates :digest, presence: true, uniqueness: {case_sensitive: false}
         validates :token, presence: true, uniqueness: {case_sensitive: false}
     
