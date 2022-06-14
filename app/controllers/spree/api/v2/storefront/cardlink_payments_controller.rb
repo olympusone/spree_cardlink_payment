@@ -34,7 +34,7 @@ module Spree
                             string = [
                                 2, # version
                                 preferences[:merchant_id], # mid
-                                params[:lang] || locale, # lang
+                                params[:locale] || locale, # lang
                                 orderid, # orderid
                                 spree_current_order.number, # orderDesc
                                 payment.amount, # orderAmount
