@@ -2,7 +2,7 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/f05698ea99a9753420ee/maintainability)](https://codeclimate.com/github/olympusone/spree_cardlink_payment/maintainability)
 
-You can accept payments through ePOS payments
+You can accept payments through Cardlink payments
 
 ## Installation
 
@@ -59,4 +59,4 @@ If you'd like to contribute, please take a look at the
 [instructions](CONTRIBUTING.md) for installing dependencies and crafting a good
 pull request.
 
-Copyright (c) 2021 OlympusOne, released under the New BSD License
+Copyright (c) 2022 OlympusOne, released under the New BSD License
