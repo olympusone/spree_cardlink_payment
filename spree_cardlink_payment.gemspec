@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.name        = 'spree_cardlink_payment'
   s.version     = SpreeCardlinkPayment.version
   s.summary     = 'Spree Cardlink Payment'
-  s.description = ''
+  s.description = 'You can accept payments through Cardlink payments'
   s.required_ruby_version = '>= 2.5'
 
   s.author       = 'OlympusOne'
