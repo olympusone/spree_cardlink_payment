@@ -1,5 +1,7 @@
 # SpreeCardlinkPayment
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/f05698ea99a9753420ee/maintainability)](https://codeclimate.com/github/olympusone/spree_cardlink_payment/maintainability)
+
 You can accept payments through ePOS payments
 
 ## Installation
