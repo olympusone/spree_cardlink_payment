@@ -48,7 +48,7 @@ module Spree
                             }
 
                             string = [
-                                *digest_body.keys,
+                                *digest_body.values,
                                 preferences[:shared_secret],
                             ].join.strip
 
@@ -58,11 +58,10 @@ module Spree
                                 digest: digest, 
                                 orderid: orderid
                             )
+
+                            digest_body[:digest] = digest
                             
-                            render json: {
-                                *digest_body.keys,
-                                digest: digest
-                            }
+                            render json: digest_body
                         rescue => exception
                             render_error_payload(exception.to_s)
                         end
