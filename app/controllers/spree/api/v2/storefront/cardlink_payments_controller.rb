@@ -30,22 +30,26 @@ module Spree
 
                             currency = Spree::Store.current.default_currency
                             locale = Spree::Store.current.default_locale
+                            
+                            digest_body = {
+                                version: 2,
+                                mid: preferences[:merchant_id],
+                                lang: params[:locale] || locale,
+                                orderid: orderid,
+                                orderDesc: spree_current_order.number,
+                                orderAmount: payment.amount, 
+                                currency: currency,
+                                billCountry: bill_address.country.iso,
+                                billZip: bill_address.zipcode,
+                                billCity: bill_address.city,
+                                billAddress: bill_address.address1,
+                                confirmUrl: confirm_url,
+                                cancelUrl: cancel_url,
+                            }
 
                             string = [
-                                2, # version
-                                preferences[:merchant_id], # mid
-                                params[:locale] || locale, # lang
-                                orderid, # orderid
-                                spree_current_order.number, # orderDesc
-                                payment.amount, # orderAmount
-                                currency, # currency
-                                bill_address.country.iso, # billCountry
-                                bill_address.zipcode, # billZip
-                                bill_address.city, # billCity
-                                bill_address.address1, # billAddress
-                                confirm_url, # confirmUrl
-                                cancel_url, # cancelUrl
-                                preferences[:shared_secret], # shared secret
+                                *digest_body.keys,
+                                preferences[:shared_secret],
                             ].join.strip
 
                             digest = Base64.encode64(Digest::SHA256.digest string).strip
@@ -55,7 +59,10 @@ module Spree
                                 orderid: orderid
                             )
                             
-                            render json: {digest: digest, orderid: orderid, confirm_url: confirm_url, cancel_url: cancel_url}
+                            render json: {
+                                *digest_body.keys,
+                                digest: digest
+                            }
                         rescue => exception
                             render_error_payload(exception.to_s)
                         end
