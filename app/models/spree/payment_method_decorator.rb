@@ -5,13 +5,12 @@ module Spree::PaymentMethodDecorator
         base.preference :shared_secret, :string
 
         base.preference :host, :string
-        base.preference :confirm_url, :string
-        base.preference :cancel_url, :string
+        base.preference :app_host, :string
     end
 
     protected
     def public_preference_keys
-        [:new_ticket_url, :merchant_id, :confirm_url, :cancel_url]
+        [:new_ticket_url, :merchant_id]
     end
 end
   

@@ -23,8 +23,10 @@ module Spree
 
                             bill_address = payment.order.bill_address
 
-                            confirm_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/success")
-                            cancel_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/failure")
+                            lang = params[:locale] || locale
+
+                            confirm_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/success", "?locale=#{lang}")
+                            cancel_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/failure", "?locale=#{lang}")
 
                             orderid = SecureRandom.base58(24)
 
@@ -34,7 +36,7 @@ module Spree
                             digest_body = {
                                 version: 2,
                                 mid: preferences[:merchant_id],
-                                lang: params[:locale] || locale,
+                                lang: lang,
                                 orderid: orderid,
                                 orderDesc: spree_current_order.number,
                                 orderAmount: payment.amount, 
@@ -102,8 +104,11 @@ module Spree
 
                             cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
 
+                            lang = params[:locale] || locale
+                            failure_url = URI.join(preferences[:app_host], "/#{lang}", "/checkout/failure")
+
                             redirect_to URI::join(
-                                preferences[:cancel_url], 
+                                failure_url, 
                                 "?txId=#{params[:txId]}&status=#{params[:status]}&message=#{params[:message]}").to_s
                         rescue => exception
                             render_error_payload(exception.to_s)
@@ -151,15 +156,17 @@ module Spree
 
                             payment.update(response_code: params[:tx_id])
 
+                            lang = params[:locale] || locale
+
                             if ['AUTHORIZED', 'CAPTURED'].include?(params[:status])
                                 payment.complete
                                 complete_service.call(order: payment.order)
 
-                                redirect_url = preferences[:confirm_url]
+                                redirect_url = URI.join(preferences[:app_host], "/#{lang}", "/checkout/success")
                             else
                                 payment.failure
 
-                                redirect_url = preferences[:cancel_url]
+                                redirect_url = URI.join(preferences[:app_host], "/#{lang}", "/checkout/failure")
                             end
 
                             redirect_to URI::join(
