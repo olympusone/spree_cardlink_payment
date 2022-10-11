@@ -23,20 +23,18 @@ module Spree
 
                             bill_address = payment.order.bill_address
 
-                            lang = params[:locale] || locale
-
-                            confirm_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/success", "?locale=#{lang}")
-                            cancel_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/failure", "?locale=#{lang}")
+                            confirm_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/success")
+                            cancel_url = URI.join(preferences[:host], "/api/v2/storefront/cardlink_payments/failure")
 
                             orderid = SecureRandom.base58(24)
 
                             currency = Spree::Store.current.default_currency
-                            locale = Spree::Store.current.default_locale
+                            locale = params[:locale] || Spree::Store.current.default_locale
                             
                             digest_body = {
                                 version: 2,
                                 mid: preferences[:merchant_id],
-                                lang: lang,
+                                lang: locale,
                                 orderid: orderid,
                                 orderDesc: spree_current_order.number,
                                 orderAmount: payment.amount, 
@@ -47,6 +45,7 @@ module Spree
                                 billAddress: bill_address.address1,
                                 confirmUrl: confirm_url,
                                 cancelUrl: cancel_url,
+                                var1: locale
                             }
 
                             string = [
@@ -104,7 +103,8 @@ module Spree
 
                             cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
 
-                            lang = params[:locale] || locale
+                            # TODO make it more efficient
+                            lang = params[:extData] ? CGI::parse(params[:extData])["var1"][0] : locale
                             failure_url = URI.join(preferences[:app_host], "/#{lang}", "/checkout/failure")
 
                             redirect_to URI::join(
@@ -156,7 +156,8 @@ module Spree
 
                             payment.update(response_code: params[:tx_id])
 
-                            lang = params[:locale] || locale
+                            # TODO make it more efficient
+                            lang = params[:extData] ? CGI::parse(params[:extData])["var1"][0] : locale
 
                             if ['AUTHORIZED', 'CAPTURED'].include?(params[:status])
                                 payment.complete
