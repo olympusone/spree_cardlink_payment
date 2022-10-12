@@ -29,7 +29,7 @@ module Spree
                             orderid = SecureRandom.base58(24)
 
                             currency = Spree::Store.current.default_currency
-                            lang = params[:lang] || Spree::Store.current.default_locale
+                            lang = params[:locale] || Spree::Store.current.default_locale
                             
                             digest_body = {
                                 version: 2,
@@ -45,7 +45,6 @@ module Spree
                                 billAddress: bill_address.address1,
                                 confirmUrl: confirm_url,
                                 cancelUrl: cancel_url,
-                                var1: lang
                             }
 
                             string = [
@@ -57,7 +56,8 @@ module Spree
 
                             cardlink_payment = payment.cardlink_payments.create!(
                                 digest: digest, 
-                                orderid: orderid
+                                orderid: orderid,
+                                lang: lang
                             )
 
                             digest_body[:digest] = digest
@@ -103,9 +103,7 @@ module Spree
 
                             cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
 
-                            # TODO make it more efficient
-                            lang = params[:extData] ? CGI::parse(params[:extData])["var1"][0] : Spree::Store.current.default_locale
-                            failure_url = URI.join(preferences[:app_host], "/#{lang}", "/checkout/failure")
+                            failure_url = URI.join(preferences[:app_host], "/#{cardlink_payment.lang}", "/checkout/failure")
 
                             redirect_to URI::join(
                                 failure_url, 
@@ -156,8 +154,7 @@ module Spree
 
                             payment.update(response_code: params[:tx_id])
 
-                            # TODO make it more efficient
-                            lang = params[:extData] ? CGI::parse(params[:extData])["var1"][0] : Spree::Store.current.default_locale
+                            lang = cardlink_payment.lang
 
                             if ['AUTHORIZED', 'CAPTURED'].include?(params[:status])
                                 payment.complete

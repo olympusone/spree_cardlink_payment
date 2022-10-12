@@ -9,6 +9,7 @@ class CreateCardlinkPaymentsTable < ActiveRecord::Migration[6.1]
       t.bigint :tx_id
       t.string :payment_ref
       t.string :status
+      t.string :lang
 
       t.timestamps
     end
