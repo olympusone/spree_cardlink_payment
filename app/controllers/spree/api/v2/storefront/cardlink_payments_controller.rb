@@ -103,7 +103,7 @@ module Spree
 
                             cardlink_payment.update(tx_id: params[:txId], status: params[:status], message: params[:message])
 
-                            failure_url = URI.join(preferences[:app_host], "/#{cardlink_payment.lang}", "/checkout/failure")
+                            failure_url = URI.join(preferences[:app_host], "/#{cardlink_payment.lang}/checkout/failure")
 
                             redirect_to URI::join(
                                 failure_url, 
@@ -160,11 +160,11 @@ module Spree
                                 payment.complete
                                 complete_service.call(order: payment.order)
 
-                                redirect_url = URI.join(preferences[:app_host], "/#{lang}", "/checkout/success")
+                                redirect_url = URI.join(preferences[:app_host], "/#{lang}/checkout/success")
                             else
                                 payment.failure
 
-                                redirect_url = URI.join(preferences[:app_host], "/#{lang}", "/checkout/failure")
+                                redirect_url = URI.join(preferences[:app_host], "/#{lang}/checkout/failure")
                             end
 
                             redirect_to URI::join(
