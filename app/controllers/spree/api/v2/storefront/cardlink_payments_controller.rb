@@ -45,6 +45,7 @@ module Spree
                                 billAddress: bill_address.address1,
                                 confirmUrl: confirm_url,
                                 cancelUrl: cancel_url,
+                                var1: lang
                             }
 
                             string = [
