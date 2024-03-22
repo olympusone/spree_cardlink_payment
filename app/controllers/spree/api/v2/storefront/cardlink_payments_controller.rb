@@ -53,11 +53,12 @@ module Spree
                                 preferences[:shared_secret],
                             ].join.strip
 
+                            digest = Base64.encode64(Digest::SHA256.digest string).strip
+
                             # Debug
                             puts digest_body
+                            puts digest
                             puts string
-
-                            digest = Base64.encode64(Digest::SHA256.digest string).strip
 
                             cardlink_payment = payment.cardlink_payments.create!(
                                 digest: digest, 
