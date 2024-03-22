@@ -55,11 +55,6 @@ module Spree
 
                             digest = Base64.encode64(Digest::SHA256.digest string).strip
 
-                            # Debug
-                            puts digest_body
-                            puts digest
-                            puts string
-
                             cardlink_payment = payment.cardlink_payments.create!(
                                 digest: digest, 
                                 orderid: orderid,
