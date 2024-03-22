@@ -39,6 +39,7 @@ module Spree
                                 orderDesc: spree_current_order.number,
                                 orderAmount: payment.amount, 
                                 currency: currency,
+                                payerEmail: spree_current_order.email,
                                 billCountry: bill_address.country.iso,
                                 billZip: bill_address.zipcode,
                                 billCity: bill_address.city,
